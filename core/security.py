@@ -2,7 +2,8 @@ from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 from core.config import settings
 import jwt
-from jwt import PyJWTError as JWTError
+from jwt.exceptions import InvalidTokenError as JWTError
+
 
 # Configurar hashing de contraseñas
 
