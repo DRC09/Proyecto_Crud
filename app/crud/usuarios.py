@@ -172,3 +172,21 @@ def verify_user_pass(db: Session, user_data:EditarPass):
     except SQLAlchemyError as e:
         logger.error(f"Error al cambiar contraseña: {e}")
         raise Exception("Error a cambiar contraseña")
+    
+
+def get_all_user(db: Session):
+    try:
+        query = text("""
+            SELECT usuario.id_usuario, usuario.nombre_completo, 
+                usuario.num_documento, usuario.correo, usuario.id_rol, 
+                usuario.estado, rol.nombre_rol
+            FROM usuario
+            INNER JOIN rol ON usuario.id_rol = rol.id_rol
+        """)
+
+        result = db.execute(query).mappings().all()
+        return result
+    
+    except SQLAlchemyError as e:
+        logger.error(f"Error al bucar usuario por id: {e}")
+        raise Exception("Error de base de datos al buscar el usuario")

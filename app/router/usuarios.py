@@ -1,3 +1,5 @@
+from typing import List
+from ast import List
 from unittest import result
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -116,5 +118,33 @@ def update_password(
         if not success:
             raise HTTPException(status_code=400, detail="No se pudo actualizar la contraseña")
         return {"message": "Contraseña actualizada correctamente"}
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/obtener-todos}", status_code=status.HTTP_200_OK, response_model=List[RetornoUsuario])
+def get_all(db: Session = Depends(get_db)):
+    try:
+        users = crud_users.get_all_user(db)
+        if users is None:
+            raise HTTPException(status_code=404, detail="Usuarios no encontrados")
+        return users
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    
+@router.get("/obtener-todos-secure", status_code=status.HTTP_200_OK, response_model=List[RetornoUsuario])
+def get_all_s(
+    db: Session = Depends(get_db),
+    user_token: RetornoUsuario = Depends(get_current_user)
+):
+    try:
+        if user_token.id_rol != 1:
+            raise HTTPException(status_code=401, detail="No tienes permisos para crear usuario")
+        
+        users = crud_users.get_all_user(db)
+        if users is None:
+            raise HTTPException(status_code=404, detail="Usuarios no encontrados")
+        return users
     except SQLAlchemyError as e:
         raise HTTPException(status_code=500, detail=str(e))
